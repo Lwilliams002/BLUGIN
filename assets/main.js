@@ -92,12 +92,8 @@
     }, 440);
   };
 
-  const auto = () => { clearInterval(timer); if (!calm) timer = setInterval(() => show(i + 1, 1), 5000); };
+  const auto = () => { clearInterval(timer); if (!calm) timer = setInterval(() => show(i + 1, 1), 4000); };
   root.querySelectorAll('.arch-arrows button').forEach((b) => b.addEventListener('click', () => { const d = Number(b.dataset.dir); show(i + d, d); auto(); }));
-  root.addEventListener('mouseenter', () => clearInterval(timer));
-  root.addEventListener('mouseleave', auto);
-  root.addEventListener('focusin', () => clearInterval(timer));
-  root.addEventListener('focusout', auto);
   let x0 = null;
   root.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
   root.addEventListener('touchend', (e) => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 40) { const d = dx < 0 ? 1 : -1; show(i + d, d); auto(); } }, { passive: true });
