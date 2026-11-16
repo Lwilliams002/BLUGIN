@@ -245,3 +245,8 @@ h2 { font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.2rem); }
 /* reviews summary line */
 .review-sum { color: var(--muted); margin: -24px 0 36px; }
 .review-sum a { color: var(--gold); text-decoration: underline; text-underline-offset: 0.2em; }
+
+/* specials: slide transitions (driven by the Web Animations API in main.js) */
+.side img { transition: opacity 400ms ease, transform 500ms cubic-bezier(0.22, 1, 0.36, 1); }
+.side img.is-dim { opacity: 0.08; transform: scale(0.94); }
+@media (prefers-reduced-motion: reduce) { .side img { transition: none; } }

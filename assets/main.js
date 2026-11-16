@@ -41,7 +41,7 @@
   auto();
 })();
 
-// Signature plates carousel.
+// Signature plates carousel, with direction-aware slide transitions.
 (() => {
   const root = document.getElementById('specials-carousel');
   if (!root) return;
@@ -53,20 +53,55 @@
     { img: 'assets/img/web/mussels.jpg', name: 'Spaghetti<br>frutti di mare', price: '$28.99', desc: 'Mussels, shrimp and calamari over spaghetti in a homemade marinara.' },
     { img: 'assets/img/web/garlic-shrimp.jpg', name: 'Garlic<br>shrimp', price: '$23.99', desc: 'The hearty choice: jumbo shrimp in olive oil and garlic.' },
   ];
+  plates.forEach((p) => { const im = new Image(); im.src = p.img; });
   const main = root.querySelector('.arch-img'), name = root.querySelector('.arch-name'), price = root.querySelector('.price-badge');
   const desc = document.getElementById('special-desc'), idx = document.getElementById('special-i'), n = document.getElementById('special-n');
   const prev = root.querySelector('.side-prev img'), next = root.querySelector('.side-next img');
-  let i = 0; n.textContent = plates.length;
-  const show = (k) => {
-    i = (k + plates.length) % plates.length;
-    const p = plates[i];
-    main.style.opacity = 0;
-    setTimeout(() => { main.src = p.img; main.alt = p.name.replace('<br>', ' '); main.style.opacity = 1; }, 200);
+  const moving = [main, name, price, desc];
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  let i = 0, busy = false, timer;
+  n.textContent = plates.length;
+
+  const fill = (p) => {
+    main.src = p.img; main.alt = p.name.replace('<br>', ' ');
     name.innerHTML = p.name; price.textContent = p.price; desc.textContent = p.desc; idx.textContent = i + 1;
     prev.src = plates[(i - 1 + plates.length) % plates.length].img; next.src = plates[(i + 1) % plates.length].img;
   };
-  root.querySelectorAll('.arch-arrows button').forEach((b) => b.addEventListener('click', () => show(i + Number(b.dataset.dir))));
-  show(0);
+
+  // Sequenced by timers rather than animation promises, so the content always swaps even when animations are throttled.
+  const show = (k, dir = 1) => {
+    if (busy) return;
+    i = (k + plates.length) % plates.length;
+    const p = plates[i];
+    if (calm || !main.animate) { fill(p); return; }
+    busy = true;
+    const outX = -70 * dir, inX = 90 * dir, rot = 6 * dir;
+    const outs = moving.map((el, j) => el.animate(
+      [{ transform: 'translateX(0) rotate(0deg)', opacity: 1 }, { transform: `translateX(${outX}px) rotate(${el === main ? -rot : 0}deg)`, opacity: 0 }],
+      { duration: 300, delay: j * 40, easing: EASE, fill: 'forwards' }));
+    [prev, next].forEach((el) => el.classList.add('is-dim'));
+    setTimeout(() => {
+      fill(p);
+      outs.forEach((a) => a.cancel());
+      moving.forEach((el, j) => el.animate(
+        [{ transform: `translateX(${inX}px) rotate(${el === main ? rot : 0}deg)`, opacity: 0 }, { transform: 'translateX(0) rotate(0deg)', opacity: 1 }],
+        { duration: 520, delay: j * 50, easing: EASE }));
+      [prev, next].forEach((el) => el.classList.remove('is-dim'));
+      setTimeout(() => { busy = false; }, 700);
+    }, 440);
+  };
+
+  const auto = () => { clearInterval(timer); if (!calm) timer = setInterval(() => show(i + 1, 1), 5000); };
+  root.querySelectorAll('.arch-arrows button').forEach((b) => b.addEventListener('click', () => { const d = Number(b.dataset.dir); show(i + d, d); auto(); }));
+  root.addEventListener('mouseenter', () => clearInterval(timer));
+  root.addEventListener('mouseleave', auto);
+  root.addEventListener('focusin', () => clearInterval(timer));
+  root.addEventListener('focusout', auto);
+  let x0 = null;
+  root.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  root.addEventListener('touchend', (e) => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 40) { const d = dx < 0 ? 1 : -1; show(i + d, d); auto(); } }, { passive: true });
+  fill(plates[0]); auto();
 })();
 
 // Reveal sections once as they enter the viewport.
