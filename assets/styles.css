@@ -258,3 +258,23 @@ h2 { font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.2rem); }
 .side img { transition: opacity 400ms ease, transform 500ms cubic-bezier(0.22, 1, 0.36, 1); }
 .side img.is-dim { opacity: 0.08; transform: scale(0.94); }
 @media (prefers-reduced-motion: reduce) { .side img { transition: none; } }
+
+/* phone refinements */
+@media (max-width: 760px) {
+  .brand img { height: 60px; }
+  .kicker { font-size: 0.72rem; letter-spacing: 0.2em; margin-bottom: 10px; }
+  .tagline { letter-spacing: 0.1em; margin: 8px 0 20px; }
+  .live { font-size: 0.72rem; letter-spacing: 0.12em; margin-top: 18px; }
+  .specials { padding-top: 64px; gap: 20px; }
+  .specials-head h2 { font-size: 2.4rem; }
+  .carousel { min-height: 0; }
+  .arch { width: min(340px, 100%); padding: 118px 20px 26px; border-radius: 170px 170px 20px 20px; }
+  .arch-img { width: 240px; height: 240px; margin-top: -96px; }
+  .price-badge { top: 0; right: 0; width: 84px; height: 84px; font-size: 1.05rem; }
+  .arch-name { margin-top: 16px; font-size: 1.3rem; }
+  .arch-arrows { margin-top: 20px; gap: 14px; }
+  .arch-arrows button { width: 52px; height: 52px; font-size: 1.1rem; }
+  .specials-note { margin: 22px auto 0; width: min(320px, 100%); }
+  .specials-note p { font-size: 1rem; }
+  .counter { margin-top: 12px; font-size: 1.05rem; }
+}
